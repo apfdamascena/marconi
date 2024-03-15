@@ -10,5 +10,5 @@ class Identifier:
 
 
     def run(self):
-        print("oi")
+        print("haha")
 
