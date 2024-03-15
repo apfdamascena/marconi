@@ -16,4 +16,7 @@ class RobotHardware:
     LEFT_ENCODED_FRONT = 22
     LEFT_ENCODED_BACK = 23
 
+    DISTANCE_WHEELS = 0.2185
+    RAY = 0.033 
+
 
