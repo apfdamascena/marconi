@@ -60,5 +60,5 @@ class Identifier:
 if __name__ == "__main__":
     identifier = Identifier("./direction/robot_data.csv")
     identifier.run()
-    teste = identifier.predict_new_values(0.0975165317058563, -0.1411548326435568)
-    print(teste)
+    predictions = identifier.predict_new_values(0.0975165317058563, -0.1411548326435568)
+    print(f"predição: ", predictions)
