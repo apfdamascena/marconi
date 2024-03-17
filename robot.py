@@ -82,13 +82,13 @@ def init(left_power, right_power):
 
            vrobot = (vrobotl + vrobotr)
 
-           data.append([time.time(), vrobot, wrobot])
+           data.append([time.time(), vrobot, wrobot, ul, ur])
 
     with open(f'data_left_{left_power}_right_{right_power}_robot.csv', 'w') as arquivo_csv:
 
         writter = csv.writer(arquivo_csv)
 
-        writter.writerow(['Timestamp', 'Velocidade linear', 'Velocidade angular'])
+        writter.writerow(['Timestamp', 'Velocidade linear', 'Velocidade angular', 'Velocidade Roda Esquerda', 'Velocidade Roda Direita'])
 
         for row in data:
             writter.writerow(row)
