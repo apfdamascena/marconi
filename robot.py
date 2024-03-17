@@ -7,8 +7,6 @@ from encoder import Encoder
 import csv
 
 
-# ENTRADAS SE FOREM CONFIGURADAS COMO SAIDAS QUEIMAM!!!
-
 counter = 10
 
 encoderA = Encoder(RobotHardware.RIGHT_ENCODED_FRONT, RobotHardware.RIGHT_ENCODED_BACK)
