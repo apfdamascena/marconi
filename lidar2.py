@@ -40,6 +40,26 @@ def setup_LiDAR():
     laser.setlidaropt(ydlidar.LidarPropMinRange, 0.08)
     laser.setlidaropt(ydlidar.LidarPropIntenstiy, False)
 
+def getAngle(angle1, angle2):
+    if angle1 < 0:
+        angle1 = angle1 + 360 
+    if angle2 < 0:
+        angle2 = angle2 + 360 
+    if start < 0:
+        start = start + 6.28
+        
+    angle1 = (start+(angle1*3.14/180))%6.28
+    angle2 = (start+(angle2*3.14/180))%6.28
+
+    maximum = max([angle1,angle2])
+    minimum = min([angle1,angle2])
+
+    if abs(maximum - minimum) > abs(maximum - 6.28) and abs(maximum - minimum) > abs(minimum - 0):
+        return [maximum, minimum]
+    
+    else:
+        return [minimum, maximum]
+
 # front_distance = None
 # front_angle = None
 # back_distance = None
@@ -86,7 +106,7 @@ if __name__ == "__main__":
                     angles = [0, 0, 0, 0, 0]
 
                     for n in range(scan.points.size()): 
-                        if scan.points[n].angle < -(start - 1.5708)%3.14 and scan.points[n].angle > -(start - 1.5708)%3.14:
+                        if scan.points[n].angle > getAngle(-95,-85)[0] and scan.points[n].angle < getAngle(-95,-85)[1]:
                             angles[0] += angles[0] + scan.points[n].range
                         elif scan.points[n].angle > start - 0.78 and scan.points[n].angle < start - 0.61:
                             angles[1] += angles[1] + scan.points[n].range
