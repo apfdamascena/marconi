@@ -3,6 +3,8 @@ import ydlidar
 import time
 import csv
 
+start = -2.55
+
 NAME_OF_FILE = "lidarPointCloud.csv"
 
 def makeRow(stamp, distance, angle):
@@ -71,16 +73,30 @@ if __name__ == "__main__":
     
     if initialized:
         initialized = laser.turnOn()
-        scan_data = []
         try:
             while initialized and ydlidar.os_isOk():
                 scan = ydlidar.LaserScan()
                 r = laser.doProcessSimple(scan)
 
+                startPoints = 0
+                pointsQuantity = 0
+              
                 if r:
                     print("================= Scan received [",scan.stamp,"]: ", "size: ", scan.points.size(), " =================")
-                    for n in range(1080):
-                        print(f'line {n} range = {scan.points[n].range} and angle = {scan.points[n].angle}')
+                    angles = [0, 0, 0, 0, 0]
+
+                    for n in range(scan.points.size()): 
+                        if scan.points[n].angle < -(start - 1.5708)%3.14 and scan.points[n].angle > -(start - 1.5708)%3.14:
+                            angles[0] += angles[0] + scan.points[n].range
+                        elif scan.points[n].angle > start - 0.78 and scan.points[n].angle < start - 0.61:
+                            angles[1] += angles[1] + scan.points[n].range
+                        elif scan.points[n].angle < start + 0.087  and scan.points[n].angle > start - 0.087 :
+                            angles[2] += angles[2] + scan.points[n].range
+                        elif scan.points[n].angle < start + 0.78 and scan.points[n].angle > start + 0.61:
+                            angles[3] += angles[3] + scan.points[n].range 
+                        elif scan.points[n].angle < start + 1.5708 and scan.points[n].angle > start + 1.396:
+                            angles[4] += angles[4] + scan.points[n].range 
+                    print(angles)
                 else: 
                     print("Failed to get Lidar Data")
                 time.sleep(0.25)
