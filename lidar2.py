@@ -68,21 +68,22 @@ if __name__ == "__main__":
     setup_LiDAR()
     initialized = laser.initialize()
 
+    
     if initialized:
         initialized = laser.turnOn()
         scan_data = []
-        while initialized and ydlidar.os_isOk():
-            r = laser.doProcessSimple(ydlidar.LaserScan())
+        try:
+            while initialized and ydlidar.os_isOk():
+                scan = ydlidar.LaserScan()
+                r = laser.doProcessSimple(scan)
 
-            if r:
-                print("Scan received [",scan.stamp,"]: ", "size: ", scan.points.size())
-                for n in range(1080):
-                    scan_data.append(makeRow(scan.stamp, scan.points[n].range, scan.points[n].angle))
-                break
-            else: 
-                print("Failed to get Lidar Data")
-            
-        # saveDataInACSV(scan_data)
-        laser.turnOff()
-
-    laser.disconnecting()
+                if r:
+                    print("================= Scan received [",scan.stamp,"]: ", "size: ", scan.points.size(), " =================")
+                    for n in range(1080):
+                        print(f'line {n} range = {scan.points[n].range} and angle = {scan.points[n].angle}')
+                else: 
+                    print("Failed to get Lidar Data")
+                time.sleep(0.25)
+        except KeyboardInterrupt:
+            laser.turnOff()
+            laser.disconnecting()
