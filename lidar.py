@@ -1,8 +1,7 @@
 import os
 import ydlidar
 import time
-from robot import init
-from robot import change
+import math
 
 class LidarSensor:
 
@@ -35,7 +34,7 @@ class LidarSensor:
         self.__laser.setlidaropt(ydlidar.LidarPropIntenstiy, False)
 
 
-    def ____adjust_angle(self, angle1, angle2):
+    def __adjust_angle(self, angle1, angle2):
         start = 2.1
 
         if angle1 < 0:
@@ -63,7 +62,12 @@ class LidarSensor:
             return [minimum, maximum]
     
     def get_angle(self) -> int:
-        return self.__angle
+        return math.radians(self.__angle)
+
+    def stop():
+        self.__laser.turnOff()
+        self.__laser.disconnecting()
+
 
     def start_scan(self):
         initialized = self.__laser.initialize()
@@ -94,7 +98,6 @@ class LidarSensor:
 
                         elif scan.points[n].angle > self.__adjust_angle(-5,5)[0] and scan.points[n].angle < self.__adjust_angle(-5,5)[1]:
                             if (scan.points[n].range!=0):
-                                print(scan.points[n].range)
                                 distanceFromAngles[2] += scan.points[n].range
                                 quantity[2] += 1
                         elif scan.points[n].angle > self.__adjust_angle(50,40)[0] and scan.points[n].angle < self.__adjust_angle(50,40)[1]:
@@ -108,7 +111,6 @@ class LidarSensor:
 
                     for x in range(len(distanceFromAngles)):
                         if (quantity[x]!=0):
-                            print(distanceFromAngles[x]/ quantity[x])
                             distanceFromAngles[x] =  distanceFromAngles[x]/ quantity[x]
 
 
@@ -131,8 +133,7 @@ class LidarSensor:
                         self.__angle = 45
                     elif imax == 3:
                         self.__angle = 90
-                    else:
-                        print(imax)
+
 
 
                 else: 
@@ -141,6 +142,8 @@ class LidarSensor:
         except KeyboardInterrupt:
             self.__laser.turnOff()
             self.__laser.disconnecting()
+
+        
 
 if __name__ == "__main__":
     lidar = LidarSensor()

@@ -13,13 +13,14 @@ class Identifier:
     def __init__(self, path: str, semaphore: Semaphore) -> None:
         self.__read_semaphore = semaphore
         self.__model = None
+        self.__path = path
         self.__scaler = None
         self.__scaler = StandardScaler()
 
     def run(self):
         print("[MODEL IDENTIFIER] Acquiring permission to read")
-        self.__read_semaphore.acquire(blocking=False)
-        self.__data = pd.read_csv(path)
+        # self.__read_semaphore.acquire(blocking=False)
+        self.__data = pd.read_csv(self.__path)
 
         X = self.__data[['Velocidade linear', 'Velocidade angular']].values
         y = self.__data[['Velocidade Roda Esquerda', 'Velocidade Roda Direita']].values
@@ -49,7 +50,7 @@ class Identifier:
         print("R^2 (teste):", r2_test)
         
         print("[MODEL IDENTIFIER] Releasing permission to read")
-        self.__read_semaphore.release()
+        # self.__read_semaphore.release()
 
     def predict_new_values(self, linear_speed: float, angular_speed: float):
         if self.__model is None:
@@ -64,7 +65,9 @@ class Identifier:
         
 
 if __name__ == "__main__":
-    identifier = Identifier("./direction/robot_data.csv")
+    sem = Semaphore(1)
+    identifier = Identifier("./direction/robot_data.csv", sem)
     identifier.run()
     predictions = identifier.predict_new_values(0.1220753045082092, -0.129649029170894)
+    print(predictions[0])
     print(f"predição: ", predictions)

@@ -85,8 +85,8 @@ class Robot:
 
                 if self.times_to_save >= 3:
 
-                    print("[ROBOT] Acquiring write permission")
-                    self.__semaphore.acquire(blocking=True)
+                    # print("[ROBOT] Acquiring write permission")
+                    # self.__semaphore.acquire(blocking=True)
 
                     with open(f'data_left_{left_power}_right_{right_power}_robot_{time.time()}.csv', 'w') as arquivo_csv:
                         writer = csv.writer(arquivo_csv)
@@ -96,13 +96,15 @@ class Robot:
                     self.ready_to_run_model = True
                     self.times_to_save = 0
 
-                    print("[ROBOT] Releasing write permission")
-                    self.__semaphore.release()
+                    # print("[ROBOT] Releasing write permission")
+                    # self.__semaphore.release()
                 
     def change_duty_cycle(self, left_power, right_power):
         self.__pwm_right.ChangeDutyCycle(right_power)
         self.__pwm_left.ChangeDutyCycle(left_power)
 
+    def get_dt(self):
+        return self.encoderA.get_dt()
 
 if __name__ == '__main__':
     robot_controller = Robot()
