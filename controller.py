@@ -44,6 +44,45 @@ class Controller:
     def run_training_model(self):
         self.__model.run()
         print("oia")
+    
+    def walk(self):
+        [0.19425773436261207, 0.2531785706856421, 0.18814101948952064, 0.25891525361497525, 0.18736363811926407]
+        lidar_angle = self.__lidar.get_front()
+        while True:
+            if (self.__lidar.get_front() < 0.5):
+
+                self.__robot.change_duty_cycle(100,100)
+                w = 0.5426597420629157
+
+                angle = self.__lidar.bigger_point()
+                print(f"Angle is {angle}")
+
+                t = abs(math.radians(angle)) / w
+                print(f"Time is {t}")
+
+                
+                if angle > 0:
+                    print(f"Angle is positive going left...")
+                    self.__robot.change_duty_cycle(0, 100)
+                elif angle < 0:
+                    print(f"Angle is NEGATIVE going right...")
+                    self.__robot.change_duty_cycle(100, 0)
+                else:
+                    print(f"Angle is zero going front...")
+                    self.__robot.change_duty_cycle(100, 100)
+
+
+                start_time = time.time()
+                while (time.time() - start_time) < t:
+                    pass
+            
+                # print(f"Changing duty cycle back to 0")
+                # self.__robot.change_duty_cycle(0,0)
+
+            else:
+                self.__robot.change_duty_cycle(100, 100)
+
+
 
     def start(self): 
         print("ENTROU NO START")
@@ -55,11 +94,10 @@ class Controller:
             time.sleep(0.5)
             
             lidar_angle = self.__lidar.get_angle()
-
             print(f"[Lidar Angle]: {lidar_angle}")
 
             time_robot = 2
-            
+
             w = self.__parser_angle.get_w(lidar_angle, time_robot)
             print(f"[w]: {w}")
             velocity = 0.1220753045082092
@@ -112,7 +150,7 @@ if __name__ == "__main__":
         controller = Controller(robot, model, data, semaphore, lidar, parser_angle)
         
         threads = []
-        threads.append(Thread(target=model.run))
+        # threads.append(Thread(target=model.run))
         threads.append(Thread(target=lidar.start_scan))
         threads.append(Thread(target=robot.init, args=(100, 100)))
         threads.append(Thread(target=controller.start))

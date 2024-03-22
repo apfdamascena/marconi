@@ -9,6 +9,30 @@ class LidarSensor:
         self.__laser = None
         self.__setup()
         self.__angle = 0
+        self.__angles = [5,5,5,5,5]
+    
+    def get_front(self):
+        return self.__angles[2]
+    
+    def bigger_point(self):
+        maxi = 0
+        imax = 0
+
+        for x in range(len(self.__angles)):
+            maxi = max(maxi, self.__angles[x])
+            imax = x if self.__angles[x] == maxi else imax
+
+        if imax == 0:
+            return -90
+        elif imax == 1:
+            return -45
+        elif imax == 2:
+            return 0
+        elif imax == 3:
+            return 45
+        elif imax == 4:
+            return 90
+
 
     
     def __setup(self):
@@ -112,27 +136,9 @@ class LidarSensor:
                     for x in range(len(distanceFromAngles)):
                         if (quantity[x]!=0):
                             distanceFromAngles[x] =  distanceFromAngles[x]/ quantity[x]
-
-
-                    maxi = 0
-                    imax = 0
-
-                    for x in range(len(distanceFromAngles)):
-                        maxi = max(maxi, distanceFromAngles[x])
-                        imax = x if distanceFromAngles[x] == maxi else imax
-
                     
+                    self.__angles = distanceFromAngles
 
-                    if imax == 0:
-                        self.__angle = -90
-                    elif imax == 1:
-                        self.__angle = -45
-                    elif imax == 2:
-                        self.__angle = 0
-                    elif imax == 3:
-                        self.__angle = 45
-                    elif imax == 3:
-                        self.__angle = 90
 
 
 
