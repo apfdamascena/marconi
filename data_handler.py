@@ -24,7 +24,7 @@ class DataHandler:
         data.to_csv(f'./{path_pwd}/robot_data.csv', index=False)
 
         print("[DATA HANDLER] Releasing write permission")
-        self.__read_semaphore.release(blocking=True)
+        # self.__read_semaphore.release(blocking=True)
 
     def remove_outliers(self):
         print("[DATA HANDLER] Acquiring write permission")

@@ -106,8 +106,14 @@ class Robot:
     def get_dt(self):
         return self.encoderA.get_dt()
 
+    def get_w_robot(self):
+        print("oi")
+
+    def get_velocity_robot(self):
+        print("oi")
+
 if __name__ == '__main__':
-    robot_controller = Robot()
+    robot_controller = Robot(Semaphore())
     left_power = int(input('Digite quantos porcentos da roda esquerda [0-100]:'))
     right_power = int(input('Digite quantos porcentos da roda direitas [0-100]:'))
     robot_controller.init(left_power, right_power)

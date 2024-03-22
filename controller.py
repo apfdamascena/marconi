@@ -10,10 +10,10 @@ import math
 
 class RobotAngleParser:
 
-    def get_w(self, theta: int, time: float):
-        return theta / time
+    def get_w(self, theta: int, time_value: float):
+        print("Getting W - Theta = {theta} --- Time = {time_value}")
+        return theta / time_value
     
-
 class Controller:
 
     def __init__(self, robot: Robot, 
@@ -46,25 +46,39 @@ class Controller:
         print("oia")
 
     def start(self): 
+        print("ENTROU NO START")
+        now = time.time()
+        self.__robot.change_duty_cycle(100, 100)
+
         while True:
-            print("[CONTROLLER] Running!")
-            self.__robot.change_duty_cycle(100, 100)
+            print("COMEÇØU A RODAR O CONTROLLER")
+            time.sleep(0.5)
             
             lidar_angle = self.__lidar.get_angle()
-            time = self.__robot.get_dt()
-            if time == 0:
-                time += 1
-                continue
-            w = self.__parser_angle.get_w(lidar_angle, time)
-            velocity = 0.09
+
+            print(f"[Lidar Angle]: {lidar_angle}")
+
+            time_robot = 2
+            
+            w = self.__parser_angle.get_w(lidar_angle, time_robot)
+            print(f"[w]: {w}")
+            velocity = 0.1220753045082092
 
             self.__robot.change_duty_cycle(0, 0)
 
             predictions = self.__model.predict_new_values(velocity, w)
             [left_wheels, right_weels] = predictions[0]
+            print(f"[wheels before pwm]: {left_wheels}, {right_weels}")
 
-            pwm_left = (left_wheels / math.pi * 2) * 100
-            pwm_right = (right_weels / math.pi * 2) * 100
+            pwm_left = (left_wheels / (math.pi * 2)) * 100
+            pwm_right = (right_weels / (math.pi * 2)) * 100
+
+            print(f"[wheels]: {pwm_left}, {pwm_right}")
+
+            if pwm_left < 55:
+                pwm_left = pwm_left * 1.5
+            if pwm_right < 55:
+                pwm_right = pwm_right * 1.5
 
             print(f"[wheels]: {pwm_left}, {pwm_right}")
 
@@ -72,7 +86,7 @@ class Controller:
             self.__robot.change_duty_cycle(pwm_left, pwm_right)
             current_theta = 0
             while current_theta <= abs(lidar_angle):
-                current_theta += w * time
+                current_theta += w * time_robot
     
 
             print(f"[LidarSensor]: this is my angle to rotate: {lidar_angle}")
@@ -83,7 +97,7 @@ class Controller:
                 self.run_data_handler()
                 self.run_training_model()
 
-            time.sleep(0.5)
+
 
 
 if __name__ == "__main__":
@@ -102,12 +116,25 @@ if __name__ == "__main__":
         threads.append(Thread(target=lidar.start_scan))
         threads.append(Thread(target=robot.init, args=(100, 100)))
         threads.append(Thread(target=controller.start))
+    
+        time.sleep(0.1)
+        print(f"Starting thread {0}...")
+        threads[0].start()
 
-        time.sleep(2)
-        for i, thread in list(enumerate(threads)):
-            print(f"Starting thread {i}...")
-            time.sleep(2)
-            thread.start()
+        time.sleep(0.9)
+        print(f"Starting thread {1}...")
+        threads[1].start()
+
+
+        time.sleep(0.2)
+        print(f"Starting thread {2}...")
+        threads[2].start()
+
+
+        time.sleep(0.6)
+        print(f"Starting thread {3}...")
+        threads[3].start()
+
 
         # for i, thread in enumerate(threads):
         #     print(f"Joining thread {i}...")
