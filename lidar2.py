@@ -1,9 +1,21 @@
 import os
-import ydlidar
+# import ydlidar
 import time
 import csv
 
 start = -2.55
+import math
+
+def converter_radianos_para_graus(angulo_radianos):
+
+    # Calcule a diferença entre o ângulo fornecido em radianos e o ângulo de referência em radianos
+    diferenca_radianos = angulo_radianos - start
+    
+    # Converta a diferença em radianos para graus
+    diferenca_graus = math.degrees(diferenca_radianos)
+    
+    # Retorne o ângulo resultante
+    return diferenca_graus
 
 NAME_OF_FILE = "lidarPointCloud.csv"
 
@@ -40,25 +52,27 @@ def setup_LiDAR():
     laser.setlidaropt(ydlidar.LidarPropMinRange, 0.08)
     laser.setlidaropt(ydlidar.LidarPropIntenstiy, False)
 
-def getAngle(angle1, angle2):
-    if angle1 < 0:
-        angle1 = angle1 + 360 
-    if angle2 < 0:
-        angle2 = angle2 + 360 
-    if start < 0:
-        start = start + 6.28
+# def getAngle(angle1, angle2):
+#     start = -2.55
+
+#     if angle1 < 0:
+#         angle1 = angle1 + 360 
+#     if angle2 < 0:
+#         angle2 = angle2 + 360 
+#     if start < 0:
+#         start = start + 6.28
         
-    angle1 = (start+(angle1*3.14/180))%6.28
-    angle2 = (start+(angle2*3.14/180))%6.28
+#     angle1 = (start+(angle1*3.14/180))%6.28
+#     angle2 = (start+(angle2*3.14/180))%6.28
 
-    maximum = max([angle1,angle2])
-    minimum = min([angle1,angle2])
+#     maximum = max([angle1,angle2])
+#     minimum = min([angle1,angle2])
 
-    if abs(maximum - minimum) > abs(maximum - 6.28) and abs(maximum - minimum) > abs(minimum - 0):
-        return [maximum, minimum]
+#     if abs(maximum - minimum) > abs(maximum - 6.28) and abs(maximum - minimum) > abs(minimum - 0):
+#         return [maximum, minimum]
     
-    else:
-        return [minimum, maximum]
+#     else:
+#         return [minimum, maximum]
 
 # front_distance = None
 # front_angle = None
@@ -79,6 +93,7 @@ def getAngle(angle1, angle2):
 # print("[GPT] Back angle:", back_angle)
 
 if __name__ == "__main__":
+    print(getAngle(-95,-85)[1])
     ydlidar.os_init()
     ports = ydlidar.lidarPortList()
     port = "/dev/ydlidar"
@@ -104,18 +119,29 @@ if __name__ == "__main__":
                 if r:
                     print("================= Scan received [",scan.stamp,"]: ", "size: ", scan.points.size(), " =================")
                     angles = [0, 0, 0, 0, 0]
+                    quantity = [0, 0, 0, 0, 0]
+                    pointGrau = converter_radianos_para_graus(scan.points[n].angle)
 
                     for n in range(scan.points.size()): 
-                        if scan.points[n].angle > getAngle(-95,-85)[0] and scan.points[n].angle < getAngle(-95,-85)[1]:
+                        if pointGrau > -95 and pointGrau < -85:
                             angles[0] += angles[0] + scan.points[n].range
-                        elif scan.points[n].angle > start - 0.78 and scan.points[n].angle < start - 0.61:
+                            quantity[0] += 1
+                        elif pointGrau > -50 and pointGrau < -40:
                             angles[1] += angles[1] + scan.points[n].range
-                        elif scan.points[n].angle < start + 0.087  and scan.points[n].angle > start - 0.087 :
+                            quantity[1] += 1
+                        elif pointGrau > -5 and pointGrau < 5 :
                             angles[2] += angles[2] + scan.points[n].range
-                        elif scan.points[n].angle < start + 0.78 and scan.points[n].angle > start + 0.61:
+                            quantity[2] += 1
+                        elif pointGrau > 40 and pointGrau < 50:
                             angles[3] += angles[3] + scan.points[n].range 
-                        elif scan.points[n].angle < start + 1.5708 and scan.points[n].angle > start + 1.396:
+                            quantity[3] += 1
+                        elif pointGrau > 85 and pointGrau < 95:
                             angles[4] += angles[4] + scan.points[n].range 
+                            quantity[4] += 1
+
+                    for x in range(len(angles)-1):
+                        angles[x] /= quantity[x]
+
                     print(angles)
                 else: 
                     print("Failed to get Lidar Data")
