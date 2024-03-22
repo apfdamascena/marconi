@@ -1,13 +1,17 @@
 import os
 import pandas as pd
 from robot_hardware import RobotHardware
+from threading import Semaphore
 
 class DataHandler:
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, semaphore: Semaphore) -> None:
         self.__path = path
+        self.__read_semaphore = semaphore
 
     def concat(self, path_pwd: str):
+        print("[DATA HANDLER] Acquiring write permission")
+        self.__read_semaphore.acquire(blocking=True)
 
         data = pd.DataFrame()
 
@@ -19,9 +23,13 @@ class DataHandler:
 
         data.to_csv(f'./{path_pwd}/robot_data.csv', index=False)
 
+        print("[DATA HANDLER] Releasing write permission")
+        self.__read_semaphore.release(blocking=True)
 
     def remove_outliers(self):
-
+        print("[DATA HANDLER] Acquiring write permission")
+        self.__read_semaphore.acquire(blocking=True)
+        
         for file in os.listdir(self.__path):
             if not file.endswith('.csv'):
                 continue
@@ -47,10 +55,15 @@ class DataHandler:
                 os.makedirs(pwd_cleaned)
 
             data_without_outliers.to_csv(f'./cleaned-data/{file}', index=False)
+        print("[DATA HANDLER] Releasing write permission")
+        self.__read_semaphore.release(blocking=True)
 
 
     def add_direction(self, path_pwd: str):
 
+        print("[DATA HANDLER] Acquiring write permission")
+        self.__read_semaphore.acquire(blocking=True)
+        
         for file in os.listdir(path_pwd):
             if not file.endswith('.csv'):
                 continue
@@ -81,6 +94,8 @@ class DataHandler:
 
             data.to_csv(f'./direction/{file}', index=False)
 
+        print("[DATA HANDLER] Releasing write permission")
+        self.__read_semaphore.release(blocking=True)
 
 
 if __name__ == "__main__":
