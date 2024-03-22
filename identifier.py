@@ -19,7 +19,6 @@ class Identifier:
         X = self.__data[['Velocidade linear', 'Velocidade angular']].values
         y = self.__data[['Velocidade Roda Esquerda', 'Velocidade Roda Direita']].values
 
-
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
         self.__scaler = StandardScaler()
@@ -60,5 +59,5 @@ class Identifier:
 if __name__ == "__main__":
     identifier = Identifier("./direction/robot_data.csv")
     identifier.run()
-    predictions = identifier.predict_new_values(0.0975165317058563, -0.1411548326435568)
+    predictions = identifier.predict_new_values(0.1220753045082092, -0.129649029170894)
     print(f"predição: ", predictions)
