@@ -1,15 +1,31 @@
 import os
-# import ydlidar
+import ydlidar
 import time
 import csv
 
-start = -2.55
+start = 2.1
 import math
+
+# def converter_radianos_para_graus(angulo_radianos, angulo_referencia_graus):
+#     # Calcule a diferença entre o ângulo fornecido em radianos e o ângulo de referência em radianos
+#     diferenca_radianos = angulo_radianos - angulo_referencia_radianos
+    
+#     # Converta a diferença em radianos para graus
+#     diferenca_graus = math.degrees(diferenca_radianos)
+    
+#     # Ajuste o ângulo de acordo com o sentido anti-horário
+#     angulo_resultante = angulo_referencia_graus + diferenca_graus
+    
+#     # Certifique-se de que o ângulo resultante esteja dentro do intervalo [0, 360)
+#     angulo_resultante = angulo_resultante % 360
+    
+#     # Retorne o ângulo resultante
+#     return angulo_resultante
 
 def converter_radianos_para_graus(angulo_radianos):
 
     # Calcule a diferença entre o ângulo fornecido em radianos e o ângulo de referência em radianos
-    diferenca_radianos = angulo_radianos - start
+    diferenca_radianos = angulo_radianos 
     
     # Converta a diferença em radianos para graus
     diferenca_graus = math.degrees(diferenca_radianos)
@@ -93,7 +109,7 @@ def setup_LiDAR():
 # print("[GPT] Back angle:", back_angle)
 
 if __name__ == "__main__":
-    print(getAngle(-95,-85)[1])
+    print(converter_radianos_para_graus(2.65))
     ydlidar.os_init()
     ports = ydlidar.lidarPortList()
     port = "/dev/ydlidar"
@@ -118,31 +134,48 @@ if __name__ == "__main__":
               
                 if r:
                     print("================= Scan received [",scan.stamp,"]: ", "size: ", scan.points.size(), " =================")
-                    angles = [0, 0, 0, 0, 0]
+                    distanceFromAngles = [0, 0, 0, 0, 0]
                     quantity = [0, 0, 0, 0, 0]
-                    pointGrau = converter_radianos_para_graus(scan.points[n].angle)
 
                     for n in range(scan.points.size()): 
-                        if pointGrau > -95 and pointGrau < -85:
-                            angles[0] += angles[0] + scan.points[n].range
+                        startgrau = converter_radianos_para_graus(start)
+                        pointGrau = converter_radianos_para_graus(scan.points[n].angle)
+
+                        if pointGrau > startgrau-95 and pointGrau < startgrau-85:
+
+                            distanceFromAngles[0] += distanceFromAngles[0] + scan.points[n].range
                             quantity[0] += 1
-                        elif pointGrau > -50 and pointGrau < -40:
-                            angles[1] += angles[1] + scan.points[n].range
+                        elif pointGrau > startgrau-50 and pointGrau < startgrau-40:
+                            distanceFromAngles[1] += distanceFromAngles[1] + scan.points[n].range
                             quantity[1] += 1
-                        elif pointGrau > -5 and pointGrau < 5 :
-                            angles[2] += angles[2] + scan.points[n].range
+                        elif pointGrau > startgrau-5 and pointGrau < startgrau + 5 :
+                            print(pointGrau)
+                            print('aq',scan.points[n].angle)
+                            distanceFromAngles[2] += distanceFromAngles[2] + scan.points[n].range
                             quantity[2] += 1
-                        elif pointGrau > 40 and pointGrau < 50:
-                            angles[3] += angles[3] + scan.points[n].range 
+                        elif pointGrau > startgrau+40 and pointGrau < startgrau+50:
+                            distanceFromAngles[3] += distanceFromAngles[3] + scan.points[n].range 
                             quantity[3] += 1
-                        elif pointGrau > 85 and pointGrau < 95:
-                            angles[4] += angles[4] + scan.points[n].range 
+                        elif pointGrau > startgrau+85 and pointGrau < startgrau+95:
+                            distanceFromAngles[4] += distanceFromAngles[4] + scan.points[n].range 
                             quantity[4] += 1
 
-                    for x in range(len(angles)-1):
-                        angles[x] /= quantity[x]
+                    # for x in range(len(distanceFromAngles)-1):
+                    #     distanceFromAngles[x] /= quantity[x]
 
-                    print(angles)
+                    print(distanceFromAngles)
+                    # found = false
+                    # maxi = 0
+
+                    # for x in range(len(distanceFromAngles)-1):
+                    #     if distanceFromAngles[x] == 0:
+                    #         # mudarVelRobo(floor(x-2)*vel Angular Necessaria pra cada angulo)
+                    #         found = True
+                    #     else:
+                    #         maxi = max(maxi, distanceFromAngles[x])
+
+
+
                 else: 
                     print("Failed to get Lidar Data")
                 time.sleep(0.25)
