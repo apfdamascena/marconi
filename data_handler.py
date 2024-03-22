@@ -103,3 +103,14 @@ if __name__ == "__main__":
     data.remove_outliers() 
     data.add_direction("./cleaned-data")
     data.concat('./direction')
+
+
+# 1. theta do lidar 
+# 2. corrigir direçao do robo: theta = w*t em que t eh o tempo para percorrer o angulo theta com a velocidade angular w
+
+# t -> sleep
+
+# 3. a gente enviar pro modelo junt com algum V eu acho 
+# 4. modelo vai retornar os dois valores da roda
+# 5. left, right
+# 6. (left / vmax) * 100 -> pwm_left

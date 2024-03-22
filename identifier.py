@@ -17,7 +17,8 @@ class Identifier:
         self.__scaler = StandardScaler()
 
     def run(self):
-        self.__semaphore.acquire(blocking=False)
+        print("[MODEL IDENTIFIER] Acquiring permission to read")
+        self.__read_semaphore.acquire(blocking=False)
         self.__data = pd.read_csv(path)
 
         X = self.__data[['Velocidade linear', 'Velocidade angular']].values
@@ -47,7 +48,8 @@ class Identifier:
         print("R^2 (treinamento):", r2_train)
         print("R^2 (teste):", r2_test)
         
-        self.__semaphore.release()
+        print("[MODEL IDENTIFIER] Releasing permission to read")
+        self.__read_semaphore.release()
 
     def predict_new_values(self, linear_speed: float, angular_speed: float):
         if self.__model is None:
