@@ -15,7 +15,7 @@ x_list = []
 y_list = []
 for index, row in dados.iterrows():
     theta, phi = row[1], row[2]  # Índices 1 e 2 correspondem à segunda e terceira colunas
-    x, y = polar_to_cartesian(theta, phi - 2.55)
+    x, y = polar_to_cartesian(theta, phi + 2.1)
     x_list.append(x)
     y_list.append(y)
 
@@ -26,9 +26,9 @@ def plot_lidar_coordinates():
   plt.ylabel('Y')
   plt.title('Plot de Coordenadas Cartesianas')
   plt.grid(True)
-  plt.savefig('plot.svg')  # Salvar o plot como um arquivo SVG
+  plt.savefig('plot2.svg')  # Salvar o plot como um arquivo SVG
   plt.show()
 
-# plot_lidar_coordinates()
+plot_lidar_coordinates()
 
 

@@ -78,7 +78,8 @@ if __name__ == "__main__":
             if r:
                 # scan.stamp, scan.point[n].range, scan.point[n].angle
                 print("Scan received [",scan.stamp,"]: ", "size: ", scan.points.size())
-                for n in range(540): 
+                
+                for n in range(scan.points.size()): 
                     scan_data.append(makeRow(scan.stamp, scan.points[n].range, scan.points[n].angle))
                 break
             else: print("Failed to get Lidar Data")

@@ -15,34 +15,36 @@ encoderB = Encoder(RobotHardware.LEFT_ENCODED_FRONT, RobotHardware.LEFT_ENCODED_
 
 data = []
 
+GPIO.setwarnings(True)
+GPIO.setmode(GPIO.BCM)
+
+GPIO.setup(RobotHardware.LEFT_ENABLE, GPIO.OUT)
+GPIO.setup(RobotHardware.RIGHT_ENABLE, GPIO.OUT)
+
+GPIO.setup(RobotHardware.LEFT_BACKWARD, GPIO.OUT)
+GPIO.setup(RobotHardware.LEFT_FORWARD, GPIO.OUT)
+
+GPIO.setup(RobotHardware.RIGHT_BACKWARD,   GPIO.OUT)
+GPIO.setup(RobotHardware.RIGHT_FORWARD, GPIO.OUT)
+
+
+GPIO.output(RobotHardware.RIGHT_BACKWARD,   GPIO.LOW)
+GPIO.output(RobotHardware.LEFT_BACKWARD,   GPIO.LOW)
+
+GPIO.output(RobotHardware.LEFT_FORWARD, GPIO.HIGH)
+GPIO.output(RobotHardware.RIGHT_FORWARD, GPIO.HIGH)
+
+pwm_right = GPIO.PWM(RobotHardware.RIGHT_ENABLE, 1000)
+pwm_left = GPIO.PWM(RobotHardware.LEFT_ENABLE, 1000)
+
+
+
 def init(left_power, right_power):
 
-    global encoder
+    global encoder, pwm_right, pwm_left
 
     print ("Rotary Encoder Test Program")
-    GPIO.setwarnings(True)
-    GPIO.setmode(GPIO.BCM)
-
-    GPIO.setup(RobotHardware.LEFT_ENABLE, GPIO.OUT)
-    GPIO.setup(RobotHardware.RIGHT_ENABLE, GPIO.OUT)
-
-    GPIO.setup(RobotHardware.LEFT_BACKWARD, GPIO.OUT)
-    GPIO.setup(RobotHardware.LEFT_FORWARD, GPIO.OUT)
-
-    GPIO.setup(RobotHardware.RIGHT_BACKWARD,   GPIO.OUT)
-    GPIO.setup(RobotHardware.RIGHT_FORWARD, GPIO.OUT)
-
-
-    GPIO.output(RobotHardware.RIGHT_BACKWARD,   GPIO.LOW)
-    GPIO.output(RobotHardware.LEFT_BACKWARD,   GPIO.LOW)
-
-    GPIO.output(RobotHardware.LEFT_FORWARD, GPIO.HIGH)
-    GPIO.output(RobotHardware.RIGHT_FORWARD, GPIO.HIGH)
-
-    pwm_right = GPIO.PWM(RobotHardware.RIGHT_ENABLE, 1000)
-    pwm_left = GPIO.PWM(RobotHardware.LEFT_ENABLE, 1000)
-
-
+ 
     pwm_right.start(0)
     pwm_left.start(0)
 
@@ -53,7 +55,6 @@ def init(left_power, right_power):
     encoderB.run()
 
     idx = 0
-
     while encoderA.running.value:
            time.sleep(0.2)
 
@@ -90,6 +91,13 @@ def init(left_power, right_power):
 
         for row in data:
             writter.writerow(row)
+
+def change(left_power, right_power):
+    global encoder, pwm_right, pwm_left
+    pwm_right.ChangeDutyCycle(right_power)
+    pwm_left.ChangeDutyCycle(left_power)
+
+
 
 if __name__ == '__main__':
     left_power = int(input('Digite quantos porcentos da roda esquerda [0-100]:'))
