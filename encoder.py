@@ -104,6 +104,7 @@ class Encoder(multiprocessing.Process):
 
     def data_collected(self):
         self.can_get_data.value = False
+        
     def new_data_flag(self):
         return self.can_get_data.value
     def get_w(self):

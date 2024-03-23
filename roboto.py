@@ -15,8 +15,7 @@ class Robot:
         self.__pwm_right = None
         self.__pwm_left = None
 
-        self.sampling_time = 0.9
-        self.times_to_save = 0
+        self.sampling_time = 4.5
         self.ready_to_run_model = False
         
         self.data = []
@@ -78,30 +77,27 @@ class Robot:
 
             current = time.time()
 
-
             if current - now >= self.sampling_time:
                 now = current
-                self.times_to_save += 1
-
-                if self.times_to_save >= 3:
-
-                    # print("[ROBOT] Acquiring write permission")
-                    # self.__semaphore.acquire(blocking=True)
-
-                    with open(f'data_left_{left_power}_right_{right_power}_robot_{time.time()}.csv', 'w') as arquivo_csv:
-                        writer = csv.writer(arquivo_csv)
-                        writer.writerow(['Timestamp', 'Velocidade linear', 'Velocidade angular', 'Velocidade Roda Esquerda', 'Velocidade Roda Direita'])
-                        for row in self.data:
-                            writer.writerow(row)
-                    self.ready_to_run_model = True
-                    self.times_to_save = 0
-
-                    # print("[ROBOT] Releasing write permission")
-                    # self.__semaphore.release()
+                with open(f'./data/data_left_{left_power}_right_{right_power}_robot_{time.time()}.csv', 'w') as arquivo_csv:
+                    writer = csv.writer(arquivo_csv)
+                    writer.writerow(['Timestamp', 'Velocidade linear', 'Velocidade angular', 'Velocidade Roda Esquerda', 'Velocidade Roda Direita'])
+                    for row in self.data:
+                        writer.writerow(row)
+                self.__semaphore.acquire(blocking=True)
+                self.ready_to_run_model = True
+                self.__semaphore.release()
+              
                 
     def change_duty_cycle(self, left_power, right_power):
         self.__pwm_right.ChangeDutyCycle(right_power)
         self.__pwm_left.ChangeDutyCycle(left_power)
+
+    def is_prepare_to_train_again(self): 
+        return self.ready_to_run_model
+
+    def model_job_done(self):
+        self.ready_to_run_model = False
 
     def get_dt(self):
         return self.encoderA.get_dt()
