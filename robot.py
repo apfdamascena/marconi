@@ -15,7 +15,7 @@ encoderB = Encoder(RobotHardware.LEFT_ENCODED_FRONT, RobotHardware.LEFT_ENCODED_
 
 data = []
 
-def init(left_power, right_power):
+def init(left_power, right_power, direction_left="F", direction_right="F"):
 
     global encoder
 
@@ -32,12 +32,19 @@ def init(left_power, right_power):
     GPIO.setup(RobotHardware.RIGHT_BACKWARD,   GPIO.OUT)
     GPIO.setup(RobotHardware.RIGHT_FORWARD, GPIO.OUT)
 
+    if direction_left == "F":
+        GPIO.output(RobotHardware.LEFT_BACKWARD,   GPIO.LOW)
+        GPIO.output(RobotHardware.LEFT_FORWARD, GPIO.HIGH)
+    elif direction_left == "B":
+        GPIO.output(RobotHardware.LEFT_BACKWARD, GPIO.HIGH)
+        GPIO.output(RobotHardware.LEFT_FORWARD, GPIO.LOW)
 
-    GPIO.output(RobotHardware.RIGHT_BACKWARD,   GPIO.LOW)
-    GPIO.output(RobotHardware.LEFT_BACKWARD,   GPIO.LOW)
-
-    GPIO.output(RobotHardware.LEFT_FORWARD, GPIO.HIGH)
-    GPIO.output(RobotHardware.RIGHT_FORWARD, GPIO.HIGH)
+    if direction_right == "F":
+        GPIO.output(RobotHardware.RIGHT_BACKWARD, GPIO.LOW)
+        GPIO.output(RobotHardware.RIGHT_FORWARD, GPIO.HIGH)
+    elif direction_right == "B":
+        GPIO.output(RobotHardware.RIGHT_BACKWARD, GPIO.HIGH)
+        GPIO.output(RobotHardware.RIGHT_FORWARD, GPIO.LOW)
 
     pwm_right = GPIO.PWM(RobotHardware.RIGHT_ENABLE, 1000)
     pwm_left = GPIO.PWM(RobotHardware.LEFT_ENABLE, 1000)
@@ -55,40 +62,49 @@ def init(left_power, right_power):
     idx = 0
 
     while encoderA.running.value:
-           time.sleep(0.2)
+        time.sleep(0.2)
 
-           ul = -encoderB.get_w()
-           ur = encoderA.get_w()
+        ul = -encoderB.get_w()
+        ur = encoderA.get_w()
 
-           if idx >= 500:
-                encoderA.stop()
-                break
+        if idx >= 500:
+            encoderA.stop()
+            break
 
-           idx += 20
+        idx += 20
 
-           print(idx)
-
-           
-           wrobotl = -RobotHardware.RAY * ul / ( RobotHardware.DISTANCE_WHEELS)
-           wrobotr = RobotHardware.RAY * ur / ( RobotHardware.DISTANCE_WHEELS)
-
-           wrobot = wrobotl + wrobotr
+        print(idx)
 
 
-           vrobotl = RobotHardware.RAY * ul / 2
-           vrobotr = RobotHardware.RAY * ur / 2
+        wrobotl = -RobotHardware.RAY * ul / ( RobotHardware.DISTANCE_WHEELS)
+        wrobotr = RobotHardware.RAY * ur / ( RobotHardware.DISTANCE_WHEELS)
 
-           vrobot = (vrobotl + vrobotr)
+        wrobot = wrobotl + wrobotr
 
-           data.append([time.time(), vrobot, wrobot, ul, ur])
 
-    with open(f'./data/data_left_{left_power}_right_{right_power}_robot.csv', 'w') as arquivo_csv:
+        vrobotl = RobotHardware.RAY * ul / 2
+        vrobotr = RobotHardware.RAY * ur / 2
+
+        vrobot = (vrobotl + vrobotr)
+
+        if direction_left == "F" and direction_right == "F":
+            data.append([time.time(), vrobot, wrobot, ul, ur])
+        elif direction_left == "B" and direction_right == "B":
+            data.append([time.time(), vrobot, wrobot, -ul, -ur])
+        elif direction_left == "F" and direction_right == "B":
+            data.append([time.time(), vrobot, wrobot, ul, -ur])
+        elif direction_left == "B" and direction_right == "F":
+            data.append([time.time(), vrobot, wrobot, -ul, ur])
+
+    with open(f'./asterix-data/data_left_{left_power}_{direction_left}_right_{right_power}_{direction_right}_robot.csv', 'w') as arquivo_csv:
         writter = csv.writer(arquivo_csv)
         writter.writerow(['Timestamp', 'Velocidade linear', 'Velocidade angular', 'Velocidade Roda Esquerda', 'Velocidade Roda Direita'])
         for row in data:
             writter.writerow(row)
 
 if __name__ == '__main__':
+    direction_left = input('Digite a direção da roda esquerda [F, B]:')
+    direction_right = input('Digite a direção da roda direita [F, B]:')
     left_power = int(input('Digite quantos porcentos da roda esquerda [0-100]:'))
-    right_power = int(input('Digite quantos porcentos da roda direitas [0-100]:'))
-    init(left_power, right_power)
+    right_power = int(input('Digite quantos porcentos da roda direita [0-100]:'))
+    init(left_power, right_power, direction_left, direction_right)

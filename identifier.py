@@ -61,6 +61,12 @@ class Identifier:
         scaled_input = self.__scaler.transform(scaled_input) 
         predicted_speeds = self.__model.predict(scaled_input)
         return predicted_speeds
+
+    def predict_velocity(self, state):
+        linear_velocity, w_velocity = state.give_angular_velocity()
+        [left_velocity, right_velocity] = self.predict_new_values(linear_velocity, w_velocity)[0]
+        return left_velocity, right_velocity
+        
         
         
 

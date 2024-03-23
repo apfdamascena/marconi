@@ -15,14 +15,12 @@ class Robot:
         self.__pwm_right = None
         self.__pwm_left = None
 
-        self.sampling_time = 4.5
+        self.sampling_time = 3
         self.ready_to_run_model = False
         
         self.data = []
         self.__semaphore = semaphore
 
-    def init(self, left_power, right_power):
-        
         GPIO.setwarnings(True)
         GPIO.setmode(GPIO.BCM)
 
@@ -43,7 +41,28 @@ class Robot:
 
         self.__pwm_right = GPIO.PWM(RobotHardware.RIGHT_ENABLE, 1000)
         self.__pwm_left = GPIO.PWM(RobotHardware.LEFT_ENABLE, 1000)
+        self.__pwm_right.ChangeDutyCycle(0)
+        self.__pwm_left.ChangeDutyCycle(0)
 
+
+    def change_wheel_direction(self, wheel, direction):
+        if wheel == "left" and direction == "F":
+            GPIO.output(RobotHardware.LEFT_BACKWARD, GPIO.LOW)
+            GPIO.output(RobotHardware.LEFT_FORWARD, GPIO.HIGH)
+        if wheel == "left" and direction == "B":
+            GPIO.output(RobotHardware.LEFT_BACKWARD, GPIO.HIGH)
+            GPIO.output(RobotHardware.LEFT_FORWARD, GPIO.LOW)
+        if wheel == "right" and direction == "F":
+            GPIO.output(RobotHardware.RIGHT_BACKWARD, GPIO.LOW)
+            GPIO.output(RobotHardware.RIGHT_FORWARD, GPIO.HIGH)
+        if wheel == "right" and direction == "B":
+            GPIO.output(RobotHardware.RIGHT_BACKWARD, GPIO.HIGH)
+            GPIO.output(RobotHardware.RIGHT_FORWARD, GPIO.LOW)
+
+
+    def init(self, left_power, right_power):
+        
+      
         self.__pwm_right.start(0)
         self.__pwm_left.start(0)
 
@@ -52,7 +71,6 @@ class Robot:
 
         self.encoderA.run()
         self.encoderB.run()
-
 
         now = time.time()
 
