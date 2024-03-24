@@ -10,7 +10,7 @@ class DataHandler:
         self.__read_semaphore = semaphore
 
     def concat(self, path_pwd: str):
-        print("[DATA HANDLER] Acquiring write permission")
+        # print("[DATA HANDLER] Acquiring write permission - Concat")
         # self.__read_semaphore.acquire(blocking=True)
 
         data = pd.DataFrame()
@@ -23,11 +23,11 @@ class DataHandler:
 
         data.to_csv(f'./{path_pwd}/robot_data.csv', index=False)
 
-        print("[DATA HANDLER] Releasing write permission")
+        # print("[DATA HANDLER] Releasing write permission - Concat")
         # self.__read_semaphore.release(blocking=True)
 
     def remove_outliers(self):
-        print("[DATA HANDLER] Acquiring write permission")
+        # print("[DATA HANDLER] Acquiring write permission - Remove outliers")
         # self.__read_semaphore.acquire(blocking=True)
         
         for file in os.listdir(self.__path):
@@ -49,19 +49,19 @@ class DataHandler:
 
             data_without_outliers = data[~outliers.any(axis=1)]
 
-            pwd_cleaned = os.path.join("./cleaned-data")
+            pwd_cleaned = os.path.join(self.__path)
 
             if not os.path.exists(pwd_cleaned):
                 os.makedirs(pwd_cleaned)
 
-            data_without_outliers.to_csv(f'./cleaned-data/{file}', index=False)
-        print("[DATA HANDLER] Releasing write permission")
+            data_without_outliers.to_csv(f'{self.__path}/{file}', index=False)
+        print("[DATA HANDLER] Releasing write permission - Remove outliers")
         # self.__read_semaphore.release(blocking=True)
 
 
     def add_direction(self, path_pwd: str):
 
-        print("[DATA HANDLER] Acquiring write permission")
+        # print("[DATA HANDLER] Acquiring write permission - Add direction")
         # self.__read_semaphore.acquire(blocking=True)
         
         for file in os.listdir(path_pwd):
@@ -94,15 +94,15 @@ class DataHandler:
 
             data.to_csv(f'./direction/{file}', index=False)
 
-        print("[DATA HANDLER] Releasing write permission")
+        print("[DATA HANDLER] Releasing write permission - Add direction")
         # self.__read_semaphore.release(blocking=True)
 
 
 if __name__ == "__main__":
-    data = DataHandler("./data")
+    data = DataHandler("./asterix-data", None)
     data.remove_outliers() 
-    data.add_direction("./cleaned-data")
-    data.concat('./direction')
+    # data.add_direction("./asterix-data")
+    data.concat('./asterix-data')
 
 
 # 1. theta do lidar 

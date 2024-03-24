@@ -10,6 +10,7 @@ class LidarSensor:
         self.__setup()
         self.__angle = 0
         self.__angles = [5,5,5,5,5]
+        self.__initialized = False
     
     def __setup(self):
         ydlidar.os_init()
@@ -60,15 +61,65 @@ class LidarSensor:
         
         return [minimum, maximum]
 
-    def scan(self):
-        initialized = self.__laser.initialize()
-        if initialized:
-            initialized = self.__laser.turnOn()
-        try:
+    # def scan(self):
+    #     self.__initialized = self.__laser.initialize()
+    #     if self.__initialized:
+    #         self.__initialized = self.__laser.turnOn()
+    #     try:
                
-            while initialized and ydlidar.os_isOk():
+    #         while self.__initialized and ydlidar.os_isOk():
                 
                 
+    #             scan = ydlidar.LaserScan()
+    #             r = self.__laser.doProcessSimple(scan)
+
+    #             startPoints = 0
+    #             pointsQuantity = 0
+              
+    #             if r:
+
+    #                 distances = [0, 0, 0, 0, 0]
+    #                 num_points = [0, 0, 0, 0, 0]
+    #                 scan_size = scan.points.size()
+    #                 # if scan_size > 1020:
+    #                 #     scan_size = 1020
+
+
+    #                 for n in range(scan_size):
+    #                     angle = scan.points[n].angle
+    #                     for i, (start_angle, end_angle) in enumerate([(-95, -85), (-50, -40), (-5, 5), (40, 50), (85, 95)]):
+    #                         [start_fixed_angle, end_fixed_angle] = self.__adjust_angle(start_angle, end_angle)
+
+    #                         if start_fixed_angle <= angle <= end_angle:
+    #                             if scan.points[n].range != 0:
+    #                                 distances[i] += scan.points[n].range
+    #                                 num_points[i] += 1
+    #                             break
+                        
+    #                 for index in range(len(distances)):
+    #                     if num_points[index] != 0:
+    #                         distances[index] /= num_points[index]
+
+    #                 self.__angles = distances
+    #                 print( self.__adjust_angle(95, -95))
+   
+    #             else: 
+    #                 print("Failed to get Lidar Data")
+    #             # time.sleep(0.1)
+    #     except KeyboardInterrupt:
+    #         self.__laser.turnOff()
+    #         self.__laser.disconnecting()
+
+    def is_not_ready(self):
+        return not self.__initialized
+
+
+    def scan(self):
+        self.__initialized = self.__laser.initialize()
+        if self.__initialized:
+            self.__initialized = self.__laser.turnOn()
+        try:
+            while self.__initialized and ydlidar.os_isOk():
                 scan = ydlidar.LaserScan()
                 r = self.__laser.doProcessSimple(scan)
 
@@ -76,34 +127,42 @@ class LidarSensor:
                 pointsQuantity = 0
               
                 if r:
+                    distanceFromAngles = [0, 0, 0, 0, 0]
+                    quantity = [0, 0, 0, 0, 0]
 
-                    distances = [0, 0, 0, 0, 0]
-                    num_points = [0, 0, 0, 0, 0]
-                    scan_size = scan.points.size()
-                    if scan_size > 520:
-                        scan_size = 520
+                    for n in range(scan.points.size()): 
+                        if scan.points[n].angle > self.__adjust_angle(-95,-85)[0] and scan.points[n].angle < self.__adjust_angle(-95,-85)[1]:
+                            if (scan.points[n].range!=0):
+                                distanceFromAngles[0] += scan.points[n].range
+                                quantity[0] += 1
 
+                        elif scan.points[n].angle > self.__adjust_angle(-50,-40)[0] and scan.points[n].angle < self.__adjust_angle(-50,-40)[1]:
+                            if (scan.points[n].range!=0):
+                                distanceFromAngles[1] += scan.points[n].range
+                                quantity[1] += 1
 
-                    for n in range(scan_size):
-                        angle = scan.points[n].angle
-                        for i, (start_angle, end_angle) in enumerate([(-95, -85), (-50, -40), (-5, 5), (40, 50), (85, 95)]):
-                            [start_fixed_angle, end_fixed_angle] = self.__adjust_angle(start_angle, end_angle)
+                        elif scan.points[n].angle > self.__adjust_angle(-5,5)[0] and scan.points[n].angle < self.__adjust_angle(-5,5)[1]:
+                            if (scan.points[n].range!=0):
+                                distanceFromAngles[2] += scan.points[n].range
+                                quantity[2] += 1
+                        elif scan.points[n].angle > self.__adjust_angle(50,40)[0] and scan.points[n].angle < self.__adjust_angle(50,40)[1]:
+                            if (scan.points[n].range!=0):
+                                distanceFromAngles[3] += scan.points[n].range 
+                                quantity[3] += 1
+                        elif scan.points[n].angle > self.__adjust_angle(95,85)[0] and scan.points[n].angle < self.__adjust_angle(95,85)[1]:
+                            if (scan.points[n].range!=0):
+                                distanceFromAngles[4] += scan.points[n].range 
+                                quantity[4] += 1
 
-                            if start_fixed_angle <= angle <= end_angle:
-                                if scan.points[n].range != 0:
-                                    distances[i] += scan.points[n].range
-                                    num_points[i] += 1
-                                break
-                        
-                    for index in range(len(distances)):
-                        if num_points[index] != 0:
-                            distances[index] /= num_points[index]
+                    for x in range(len(distanceFromAngles)):
+                        if (quantity[x]!=0):
+                            distanceFromAngles[x] =  distanceFromAngles[x]/ quantity[x]
+                    
+                    self.__angles = distanceFromAngles
 
-                    self.__angles = distances
-   
                 else: 
                     print("Failed to get Lidar Data")
-                # time.sleep(0.1)
+                # time.sleep(0.25)
         except KeyboardInterrupt:
             self.__laser.turnOff()
             self.__laser.disconnecting()
@@ -123,7 +182,7 @@ class LidarSensor:
     def get_diagonal_distances(self):
         return self.__angles[1], self.__angles[3]
 
-    def stop():
+    def stop(self):
         self.__laser.turnOff()
         self.__laser.disconnecting()
 
